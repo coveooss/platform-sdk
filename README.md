@@ -257,7 +257,7 @@ client.PermissionManager.DeleteIdentitiesOlderThan(expandedProviderId, 300);
 ```
 
 **Good to know:**
-* As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call.
+* As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source). 
 
 ### Add complex permission to a document
 The permission model of your system might be more complicated, thus, simple permission might not be enough to secure your documents. Below is an example of having two levels. One for the `Administrator` of the system and the other one for standard users. For more information, visit [Complex Permission Model Definition Example](https://docs.coveo.com/en/25/cloud-v2-developers/complex-permission-model-definition-example).
