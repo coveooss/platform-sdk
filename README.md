@@ -63,7 +63,7 @@ client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
 * The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
 
 ### Pushing a batch of documents
-For overall performance, it is better to push your documents in batch.
+For overall performance, it is better to push your documents in batches
 
 ```csharp
 PushDocument firstDocumentToAdd = new PushDocument("http://www.coveo.com/page1") {
