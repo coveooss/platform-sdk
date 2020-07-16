@@ -40,30 +40,8 @@ ICoveoPlatformClient client = new CoveoPlatformClient(config);
 ## Using the SDK to push documents to a Push API source
 Methods to interact with the Push API are part of `client.DocumentManager` object.
 
-### Pushing a single document
-You should only use this method when you want to add or update a single document. Pushing several documents using this method may lead to the `429 - Too Many Requests` response from the Coveo platform and decrease the overall performance time of your application.
-
-```csharp
-string sourceId = "your Push API source ID";
-PushDocument document = new PushDocument("https://coveo.com") {
-    ClickableUri = "https://www.coveo.com",
-    ModifiedDate = DateTime.UtcNow
-};
-
-document.AddMetadata("title", "Coveo's home page.");
-
-PushDocumentHelper.SetContent(document, "this is Coveo's website home page.");
-
-client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
-```
-**Good to know:**
-* The `SetContent` method has an overload taking a Stream instead of a string.
-* The PushDocumentHelper class has also the method `SetContentFromFile` taking a file path.
-* The third argument in `AddOrUpdateDocument` is the ordering ID. If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received. For more information about ordering ID, visit [Understanding the orderingId Parameter](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter).
-* The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
-
 ### Pushing a batch of documents
-For overall performance, it is better to push your documents in batches
+For overall performance, it is better to push your documents in batch. Use the single document method when batches are not required to meet both your performance and volume requirement. For more information, visit [Managing Batches of Items in a Push Source](https://docs.coveo.com/en/90/cloud-v2-developers/managing-batches-of-items-in-a-push-source).
 
 ```csharp
 PushDocument firstDocumentToAdd = new PushDocument("http://www.coveo.com/page1") {
@@ -83,6 +61,28 @@ IList<PushDocument> documentsToAdd = new List<PushDocument> {
 
 client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, null);
 ```
+### Pushing a single document
+You should only use this method when you want to add or update a single document. Pushing several documents using this method may lead to the `429 - Too Many Requests` response from the Coveo platform and decrease the overall performance time of your application.
+
+```csharp
+string sourceId = "your Push API source ID";
+PushDocument document = new PushDocument("https://coveo.com") {
+    ClickableUri = "https://www.coveo.com",
+    ModifiedDate = DateTime.UtcNow
+};
+
+document.AddMetadata("title", "Coveo's home page.");
+
+PushDocumentHelper.SetContent(document, "this is Coveo's website home page.");
+
+client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
+```
+
+**Good to know:**
+* The `SetContent` method has an overload taking a Stream instead of a string.
+* The PushDocumentHelper class has also the method `SetContentFromFile` taking a file path.
+* The third argument in `AddOrUpdateDocument` is the ordering ID. If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received. For more information about ordering ID, visit [Understanding the orderingId Parameter](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter).
+* The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
 
 ### Pushing a document with big properties
 In case the size of the document you just created is too big, the SDK does not handle it if you use the call to index a single document. Take note that if you always use the batched call the SDK will handle it automatically.
