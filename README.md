@@ -12,7 +12,7 @@ Install the public NuGet package [Coveo.Connectors.Utilities.PlatformSdk](https:
 
 The package is signed before being published to NuGet to avoid pulling a malicious package.
 We provide the `PDBs` to have a better debugging experience.
-Documentation is available for most of public members and methods.
+Documentation is available for most of the public members and methods.
 
 ## How to use the SDK
 First, you need to instantiate the client to interact with the platform. Here is the minimum configuration you need to provide:
