@@ -90,7 +90,7 @@ client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
 * The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
 
 ### Pushing a document with big properties
-In case the size of the document you just created is too big, the SDK does not handle it if you use the call to index a single document. Take note that if you always use the batched call the SDK will handle it automatically.
+In case the size of the document you just created is too big, the SDK does not handle it if you use the call to index a single document. If the whole document is larger than 256MB, it will throw an `ArgumentException`. If the document is larger than 5MB, it will throw a `CoveoPlatformException` including the status code (500) and `Internal server error` inside the `ErrorMessage` property. Take note that if you always use the batched call the SDK will handle it automatically.
 In that case you have 2 options:
 * You can add the document using the batched call `client.DocumentManager.AddOrUpdateDocuments`
 * You can also check for the document size and then decide if you use `client.DocumentManager.AddOrUpdateDocument` or `client.DocumentManager.AddOrUpdateDocuments`
