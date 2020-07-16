@@ -116,7 +116,7 @@ client.DocumentManager.DeleteDocuments(sourceId, documentsIdstoDelete, null);
 ### Delete a specific document and its children
 You can delete a specific document and all its children easily. For more information about deleting a document and its children, visit [Deleting an Item and Optionally, its Children in a Push Source](https://docs.coveo.com/en/171/cloud-v2-developers/deleting-an-item-and-optionally-its-children-in-a-push-source)
 
-For example, imagine you have added a document with an ID of `http://coveo.com/parent` and another document with an ID of `http://coveo.com/parent/child`. Clearly, it this example, the second document is the child of the former. To delete a document and all its children, it is pretty easy:
+In this example, imagine you have added a document with an ID of `http://coveo.com/parent` and another document with an ID of `http://coveo.com/parent/child`. Clearly, it this example, the second document is the child of the former. To delete a document and all its children, it is pretty easy:
 ```csharp
 string parentDocumentId = "http://coveo.com/parent";
 client.DocumentManager.DeleteDocument(sourceId, parentDocumentId, null, true);
