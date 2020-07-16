@@ -247,7 +247,7 @@ client.PermissionManager.DeleteIdentities(expandedProviderId, null, identitiesTo
 ```
 
 ### Disable identities older than a specific ordering ID
-Same as the documents, you can disable identities that have an ordering ID smaller than the one you provide
+Same as the documents, you can disable identities that have an ordering ID smaller than the one you provide. For more information, visit [Disabling Old Security Identities](https://docs.coveo.com/en/33/cloud-v2-developers/disabling-old-security-identities).
 ```csharp
 client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 100, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted3", PermissionIdentityType.User)));
 client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted4", PermissionIdentityType.User)));
@@ -257,7 +257,7 @@ client.PermissionManager.DeleteIdentitiesOlderThan(expandedProviderId, 300);
 ```
 
 **Good to know:**
-* As for `DeleteDocumentsOlderThan`, there is a processing delay. 
+* As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call.
 
 ### Add complex permission to a document
 The permission model of your system might be more complicated, thus, simple permission might not be enough to secure your documents. Below is an example of having two levels. One for the `Administrator` of the system and the other one for standard users. For more information, visit [Complex Permission Model Definition Example](https://docs.coveo.com/en/25/cloud-v2-developers/complex-permission-model-definition-example).
