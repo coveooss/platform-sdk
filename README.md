@@ -20,16 +20,16 @@ First, you need to instantiate the client to interact with the platform. Here is
 
 ```csharp
 string apiKey = "Your api key with required rights";
-string organizationId = "You organization ID";
+string organizationId = "Your organization ID";
 ICoveoPlatformConfig config = new CoveoPlatformConfig(apiKey, organizationId);
 ICoveoPlatformClient client = new CoveoPlatformClient(config);
 ```
 
-By default, the package target the US production environment (platform.cloud.coveo.com). If you want to target the US HIPAA environment (platformhipaa.cloud.coveo.com) you can do it that way:
+By default, the package targets the US production environment (platform.cloud.coveo.com). If you want to target the US HIPAA environment (platformhipaa.cloud.coveo.com) you can do it this way:
 
 ```csharp
 string apiKey = "Your api key with required rights";
-string organizationId = "You organization ID";
+string organizationId = "Your organization ID";
 ICoveoPlatformConfig config = new CoveoPlatformConfig(Constants.Endpoint.UsEast1.HIPAA_PUSH_API_URL,
     Constants.PlatformEndpoint.UsEast1.HIPAA_PLATFORM_API_URL,
     apiKey,
@@ -38,10 +38,14 @@ ICoveoPlatformClient client = new CoveoPlatformClient(config);
 ```
 
 ## Using the SDK to push documents to a Push API source
-Methods to interact with the Push API are part of `client.DocumentManager` object.
-
+Methods to interact with the Push API are part of the `client.DocumentManager` object.
+### Prerequisites
+1. Ensure your API key has access to push documents inside a Push API source.
+  * You can create an API key when creating a Push API source.
+  * You can also create an API key manually. For more information about which privileges are required, visit [Privilege Reference](For more information about which privileges are required, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#sources-domain).
+1. Create a Push API source. For more information, visit [Add or Edit a Push Source](https://docs.coveo.com/en/1546/cloud-v2-administrators/add-or-edit-a-push-source).
 ### Pushing a batch of documents
-For overall performance, it is better to push your documents in batch. Use the single document method when batches are not required to meet both your performance and volume requirement. For more information, visit [Managing Batches of Items in a Push Source](https://docs.coveo.com/en/90/cloud-v2-developers/managing-batches-of-items-in-a-push-source).
+For overall performance, it is better to push your documents in batches. Use the single document method when batches are not required to meet both your performance and volume requirements. For more information, visit [Managing Batches of Items in a Push Source](https://docs.coveo.com/en/90/cloud-v2-developers/managing-batches-of-items-in-a-push-source).
 
 ```csharp
 PushDocument firstDocumentToAdd = new PushDocument("http://www.coveo.com/page1") {
@@ -80,7 +84,7 @@ client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
 
 **Good to know:**
 * The `SetContent` method has an overload taking a Stream instead of a string.
-* The PushDocumentHelper class has also the method `SetContentFromFile` taking a file path.
+* The PushDocumentHelper class has also the method `SetContentFromFile` taking a file path as an argument.
 * The third argument in `AddOrUpdateDocument` is the ordering ID. If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received. For more information about ordering ID, visit [Understanding the orderingId Parameter](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter).
 * The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
 
@@ -162,7 +166,7 @@ You can add securities to documents, so only allowed users or groups can view th
 
 ### Prerequisites
 1. Create or update your source to be secured.
-1. Ensure your API key has access to create security provider.
+1. Ensure your API key has the required privileges to create a security provider. For more information about which privileges are required, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#security-identities-domain).
 1. Create an `Expanded` security provider that cascades to `Email Security Provider` and link it to your source. Here is an example using the SDK:
 ```csharp
 string expandedProviderId = "The unique name you want";
@@ -171,7 +175,7 @@ client.SecurityProviderManager.AddOrUpdateExpandedProviderAssociatedToEmailProvi
 **Good to know:**
 * The third argument of `AddOrUpdateExpandedProviderAssociatedToEmailProvider` is whether the provider is case-sensitive or not. If false, `acme\jdoe` is the same as `acme\JDOE`.
 
-### Add simple permission to the document
+### Add simple permissions to the document
 In this example, we add a document with a simple permissions model. It means that we set the allowed and denied users directly on the document. For more information, visit [Simple Permission Model Definition Examples](https://docs.coveo.com/en/107/cloud-v2-developers/simple-permission-model-definition-examples)
 ```csharp
 PushDocument document = new PushDocument("http://www.coveo.com/secured") {
@@ -201,7 +205,7 @@ client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, null, groupBody
 ```
 
 ### Push identities in batch
-If possible, you should push the identity in batch.
+For overall performance, it is better to push your identities in batches.
 ```csharp
 PermissionIdentity member1 = new PermissionIdentity(@"acme\member1", PermissionIdentityType.User);
 PermissionIdentity member2 = new PermissionIdentity(@"acme\member2", PermissionIdentityType.User);
@@ -255,12 +259,11 @@ client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new Permis
 // Wait a little bit, then disable all identities with an ordering ID less than 300.
 client.PermissionManager.DeleteIdentitiesOlderThan(expandedProviderId, 300);
 ```
-
 **Good to know:**
 * As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source). 
 
-### Add complex permission to a document
-The permission model of your system might be more complicated, thus, simple permission might not be enough to secure your documents. Below is an example of having two levels. One for the `Administrator` of the system and the other one for standard users. For more information, visit [Complex Permission Model Definition Example](https://docs.coveo.com/en/25/cloud-v2-developers/complex-permission-model-definition-example).
+### Add complex permissions to a document
+The permission model of your system might be more complicated, thus, simple permissions might not be enough to secure your documents. Below is an example of having two levels. One for the `Administrator` of the system and the other one for standard users. For more information, visit [Complex Permission Model Definition Example](https://docs.coveo.com/en/25/cloud-v2-developers/complex-permission-model-definition-example).
 ```csharp
 PushDocument verySecureDocument = new PushDocument("http://www.coveo.com/verysecure") {
     ClickableUri = "http://www.coveo.com/verysecure",
@@ -323,9 +326,8 @@ client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mapping
 
 ## Activate logging
 The SDK uses `log4net` as its logging library. It can be useful to have some logs in case of a problem. In your log4net configuration, add a logger with `Coveo` as the name. We use namespaces as logger name. Using `Coveo` as the logger name will get you all the logs from the SDK. 
-
 **Good to know:**
 * If you activate `Trace` level, you will get information about requests made by the SDK.
 
 ## Explore!
-Feel free to explore the other `Managers` that the `ICoveoPlatformClient` provides to you. Don't hesitate to provides us feedback, report bugs if any, and ask for a feature!
+Feel free to explore the other `Managers` that the `ICoveoPlatformClient` provides to you. Don't hesitate to provide us feedback, report bugs if any, and ask for a feature!
