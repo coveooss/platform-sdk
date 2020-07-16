@@ -18,6 +18,7 @@ Documentation is available for most of the public members and methods.
 First, you need to instantiate the client to interact with the platform. Here is the minimum configuration you need to provide:
 
 ** Each section below will redirect you to the privileges needed for the requests to work. For more information about API key privileges, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference).**
+
 ```csharp
 string apiKey = "Your api key with required rights";
 string organizationId = "Your organization ID";
