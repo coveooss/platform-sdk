@@ -3,7 +3,7 @@
 
 The official Coveo C# SDK allows your software to communicate with the Coveo Cloud Platform public APIs and the Push API.
 
-The package is .NET Standard 2.0 compatible thus works for .NET Core and .NET Framework
+The package is .NET Standard 2.0 compatible and therefore works with .NET Core and .NET Framework
 
 The code of the SDK is not open-source. This repository is meant to provide feedback, bug reporting, etc.
 
