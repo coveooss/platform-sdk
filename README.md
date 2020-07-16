@@ -94,7 +94,7 @@ document.JsonObjectSize > Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES
 ```
 
 ### Pushing a document with a large binary data
-The Push API has a hard limit of 5MB (compressed) for the document's binary data. When the data exceed that value we need to request an upload URI to an S3 bucket to put the document's binary data in it and refer to that ID when pushing the document in the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed). 
+The Push API has a hard limit of 5MB (compressed) for the document's binary data. When the data exceeds that value we need to request an upload URI to an S3 bucket to put the document's binary data in it and refer to that ID when pushing the document in the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed). 
 
 ### Delete a single document
 ```csharp
