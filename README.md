@@ -166,7 +166,7 @@ client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, documentsT
 You can add permissions to documents, so only allowed users or groups can view the document. To learn how to format your permissions, see [Push API Tutorial 2 - Managing Secured Content](https://docs.coveo.com/en/98/cloud-v2-developers/push-api-tutorial-2---managing-secured-content).
 
 ### Prerequisites
-1. Ensure your push source is secured.
+1. Ensure your [Push source is secured](https://docs.coveo.com/en/98/#step-1-configure-a-secured-push-source)
 1. Ensure your API key has the privileges required to create a security identity provider. For more information about which privileges are required, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#security-identities-domain).
 1. Create an `Expanded` security provider that cascades to `Email Security Provider` and link it to your source. Here is an example using the SDK:
 ```csharp
