@@ -17,7 +17,7 @@ The code documentation is generated and is available for most of the public memb
 ## How to use the SDK
 First, you need to instantiate the client to interact with the platform. Here is the minimum configuration you need to provide:
 
-** Each section below will redirect you to the privileges needed for the requests to work. For more information about API key privileges, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference).**
+**Each section below will redirect you to the privileges needed for the requests to work. For more information about API key privileges, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference).**
 
 ```csharp
 string apiKey = "Your API key with the required privileges";
@@ -42,8 +42,8 @@ ICoveoPlatformClient client = new CoveoPlatformClient(config);
 Methods to interact with the Push API are part of the `client.DocumentManager` object.
 ### Prerequisites
 1. Ensure your API key has the required privilege to push documents inside a Push API source.
-  * You can create an API key when creating a Push API source.
-  * You can also create an API key manually. For more information about which privileges are required, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#sources-domain).
+1. You can create an API key when creating a Push API source.
+1. You can also create an API key manually. For more information about which privileges are required, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#sources-domain).
 1. [Create a Push API source.](https://docs.coveo.com/en/1546/cloud-v2-administrators/add-or-edit-a-push-source)
 ### Pushing a batch of documents
 For overall performance, it is better to push your documents in batches. Use the single document method when batches are not required to meet both your performance and volume requirements. For more information, visit [Managing Batches of Items in a Push Source](https://docs.coveo.com/en/90/cloud-v2-developers/managing-batches-of-items-in-a-push-source).
@@ -326,7 +326,8 @@ client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mapping
 ```
 
 ## Activate logging
-The SDK uses `log4net` as its logging library. It can be useful to have logs in case of problems. In your log4net configuration, add a logger with named `Coveo`. We use namespaces as logger names. Using `Coveo` as the logger name will get you all the logs from the SDK. 
+The SDK uses `log4net` as its logging library. It can be useful to have logs in case of problems. In your log4net configuration, add a logger with named `Coveo`. We use namespaces as logger names. Using `Coveo` as the logger name will get you all the logs from the SDK.
+
 **Good to know:**
 * If you activate `Trace` level, you will get information about requests made by the SDK.
 
