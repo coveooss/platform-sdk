@@ -84,8 +84,9 @@ client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
 ```
 
 **Good to know:**
-* The `SetContent` method has an overload taking a Stream instead of a string.
-* The PushDocumentHelper class also has a  `SetContentFromFile` method taking a file path as an argument.
+* The `SetContent` and `SetContentFromFile` put the value in the `data` field of the document. This is meant for small raw textual data. **Pro tip:** You should use the other method in PushDocumentHelper to put data on document for production system. [Using the data Property](https://docs.coveo.com/en/31/cloud-v2-developers/using-the-data-property).
+* The `SetContent` method has an overload taking a Stream instead of a string. The stream must be convertible to textual data.
+* The PushDocumentHelper class also has a  `SetContentFromFile` method taking a file path as an argument. **Be careful**, this method only works with text file. For binary file (e.g. PDF) use `SetBinaryContentFromFileAndCompress`.
 * The third argument in `AddOrUpdateDocument` is the [ordering ID](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter). If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received. 
 * The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
 
