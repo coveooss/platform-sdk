@@ -203,13 +203,13 @@ This will save a `streamId` in the StreamApiDocumentServiceManager instance.
 
 ### Add or Update Documents:
 
+The below calls use the call to `AddOrUpdateDocuments` that is in the DocumentServiceManager, whether or not the streamApiDocumentServiceManager contains a `streamId` will determine if the documents are uploaded in **stream mode** using the /chunk endpoint, or uploaded in **update mode** using the /files endpoint.
+
 For a single file use: `streamApiDocumentServiceManager.AddOrUpdateDocument(sourceId, pushDocument, orderingId)` 
 OR
-For multiple files, use: `streamApiDocumentServiceManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, orderingId)` 
+For multiple files, use: `streamApiDocumentServiceManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, orderingId)`  
 
-The above calls use the call to `AddOrUpdateDocuments` that is in the DocumentServiceManager, whether or not the streamApiDocumentServiceManager contains a `streamId` will determine if the documents are uploaded in **stream mode** using the /chunk endpoint, or uploaded in **update mode** using the /files endpoint. 
-
-There shouldn’t be a need to manually call `GetNewChunkForStream` , as in **stream mode** each new call to `AddOrUpdateDocuments` will also call `GetNewChunkForStream`.
+There shouldn’t be a need to manually call `GetNewChunkForStream`, as in **stream mode** each new call to `AddOrUpdateDocuments` will also call `GetNewChunkForStream`.
 In **update mode**, the call to /update is done automatically after uploading each batch.
 
 ### Delete Documents:
