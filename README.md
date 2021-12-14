@@ -100,7 +100,7 @@ document.JsonObjectSize > Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES
 ```
 
 ### Pushing a document with large binary data size
-The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value you typically need to request an upload URI to an S3 Bucket. You would then put your document binary data in that bucket and refer to it by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed).
+The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value you typically need to request an upload URI to an S3 file container. You would then put your document's binary data in that container and refer to the container by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed).
 
 ### Delete a single document
 ```csharp
@@ -165,14 +165,18 @@ client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, documentsT
 
 ## Using the SDK to push documents to the Stream API
 
-Methods to interact with the Stream API are part of the `client.DocumentManager` object. It’s a different mode of operations from the Push API, but very similar, with several more calls.
+Methods to interact with the Stream API are part of the `client.DocumentManager` object. It’s a different mode of operation from the Push API, but very similar, with several more calls.
 
-### Requirements:
+### Prerequisites:
 
-* Before you proceed with this method, ensure you’ve understood how to [index data](https://docs.coveo.com/en/2956/coveo-for-commerce/index-commerce-catalog-content-with-the-stream-api) and [create a commerce catalog](https://docs.coveo.com/en/3139/coveo-for-commerce/create-a-coveo-commerce-catalog).
+* Before you proceed with this method, ensure you’ve understood how to [create a commerce catalog](https://docs.coveo.com/en/3139/coveo-for-commerce/create-a-coveo-commerce-catalog) and how to [index data with the Stream API](https://docs.coveo.com/en/2956/coveo-for-commerce/index-commerce-catalog-content-with-the-stream-api).
 * For additional information and payload examples, refer to [How to Stream Your Catalog Data to Your Source](https://docs.coveo.com/en/lb4a0344/coveo-for-commerce/how-to-stream-your-catalog-data-to-your-source).
-* To use the Stream API, a version of the CoveoPlatformConfig needs to be created where useStreamApi is set to true:
-`new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL, Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL, apiKey, organizationId, true)`
+* Create the [catalog source](https://docs.coveo.com/en/3295/index-content/add-or-edit-a-catalog-source) first in the Coveo Administration Console and get an API key to provide to the `CoveoPlatformConfig`.
+* To enable the use of the Stream API, create your `CoveoPlatformConfig` with the `useStreamApi` parameter set to true:
+
+```
+new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL, Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL, apiKey, organizationId, true)
+```
 
 ### How the Stream API works
 
@@ -183,46 +187,66 @@ The Stream API works in two ways:
 
 ### Call Wrappers for the Stream API
 
-Call wrappers for the Stream API are found in the StreamApiDocumentServiceManager. You will need to create the [catalog source](https://docs.coveo.com/en/3295/index-content/add-or-edit-a-catalog-source) in the Admin UI first. Batching documents is recommended.
+Call wrappers for the Stream API are found in the `StreamApiDocumentServiceManager` class. As the class inherits from the `DocumentServiceManager` class, the only truly new public calls are:
 
-As the class inherits from DocumentServiceManager, the only truly new public calls are:
-
-`GetNewChunkForStream(string sourceId)`
-`OpenDocumentStream(string sourceId)`
-`CloseDocumentStream(string sourceId)`
+* `OpenDocumentStream(string sourceId)` to open a stream.
+* `GetNewChunkForStream(string sourceId)` to get a new stream chunk. Normally this should not need to be called, the SDK will automatically get a new chunk before each batch upload.
+* `CloseDocumentStream(string sourceId)` to close an open stream.
 
 Adding and deleting documents will call the base methods, but with some Stream API-specific details in the implementation.
 
-### How to Open a Stream:
+### Opening a Stream
 
-> :warning: When you open and close a stream all previous files not indexed in the current operation will be removed from the index. Updating individual documents should be done in **update mode**, without the need to open a stream and close it afterwards.
+> :warning: When you open and close a stream, all previous files not indexed in the current operation will be removed from the index. Updating individual documents should be done in **update mode**, without the need to open a stream and close it afterwards.
 
-Use `client.DocumentManager.OpenDocumentStream(sourceId)`
+```
+client.DocumentManager.OpenDocumentStream(sourceId)
+```
 
-This will save a `streamId` in the StreamApiDocumentServiceManager instance.
+This will save a `streamId` in the `client.DocumentManager` instance.
 
-### Add or Update Documents:
+### Adding or Updating Documents
 
-The below calls use the call to `AddOrUpdateDocuments` that is in the DocumentServiceManager, whether or not the streamApiDocumentServiceManager contains a `streamId` will determine if the documents are uploaded in **stream mode** using the /chunk endpoint, or uploaded in **update mode** using the /files endpoint.
+The below calls use the call to the `AddOrUpdateDocuments` method that is in the `DocumentServiceManager` class. The presence of a `streamId` in the `client.DocumentManager` instance will determine if the documents are uploaded in **stream mode** using the `/chunk` endpoint, or uploaded in **update mode** using the `/files` endpoint. Batching documents is strongly recommended and can be accomplished by calling `AddOrUpdateDocuments` for each batch of documents under 256 MB.
 
-For a single file use: `streamApiDocumentServiceManager.AddOrUpdateDocument(sourceId, pushDocument, orderingId)`
-OR
-For multiple files, use: `streamApiDocumentServiceManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, orderingId)`
+**Adding a batch of documents**
 
-There shouldn’t be a need to manually call `GetNewChunkForStream`, as in **stream mode** each new call to `AddOrUpdateDocuments` will also call `GetNewChunkForStream`.
-In **update mode**, the call to /update is done automatically after uploading each batch.
+Create Push Documents from your catalog items and put them into a `List<PushDocument>`, similar to what is done when pushing a batch of documents with the Push API.
+```
+client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, null)
+```
 
-### Delete Documents:
+**Adding a single document**
+```
+client.DocumentManager.AddOrUpdateDocument(sourceId, pushDocument, null)
+```
+**Good to know:**
+* The Stream API has the same limits as the Push API regarding document size and number of calls, adding several documents using `AddOrUpdateDocument` could result in a `429 - Too Many Requests` response from the Coveo platform.
+* There shouldn’t be a need to manually call `GetNewChunkForStream`, as in **stream mode** each new call to `AddOrUpdateDocuments` will also call `GetNewChunkForStream` first.
+* In **update mode**, the call to the `/update` endpoint is done automatically after uploading each batch.
 
-To delete a single file, use: `DeleteDocument(sourceId, documentsToDelete, orderingId)`
-OR
-To delete multiple files, use: `DeleteDocuments(sourceId, documentsToDelete, orderingId)`
+### Deleting multiple documents
+```
+IList<string> documentsIdstoDelete = new List<string> {
+    "https://coveo.com",
+    "https://coveo.com/a page"
+};
+client.DocumentManager.DeleteDocuments(sourceId, documentsIdstoDelete, null)
+```
+### Deleting a single document
+```
+string documentId = "https://coveo.com";
+client.DocumentManager.DeleteDocument(sourceId, documentId, null)
+```
+**Good to know:**
+* Both of these calls actually call the `AddOrUpdateDocuments` method (if there is only one document, it will be put into a list first) and will use the **update mode**.
+* If a stream is already open, it will be closed before `AddOrUpdateDocuments` is called.
+* Each of these calls will be followed by a call to the `/update` endpoint.
 
-These calls will close an existing stream and call `AddOrUpdateDocuments` as well, followed by a call to the /update endpoint.
-
-### How to Close a Stream:
-
-Use: `client.DocumentManager.CloseDocumentStream(sourceId)`
+### Closing a Stream
+```
+client.DocumentManager.CloseDocumentStream(sourceId)
+```
 
 ## Adding permissions to your documents
 You can add permissions to documents, so only allowed users or groups can view the document. To learn how to format your permissions, see [Push API Tutorial 2 - Managing Secured Content](https://docs.coveo.com/en/98/cloud-v2-developers/push-api-tutorial-2---managing-secured-content).
