@@ -87,7 +87,7 @@ client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
 * The `SetContent` and `SetContentFromFile` put the value in the `data` field of the document. This is meant for small raw textual data. **Pro tip:** You should use the other method in PushDocumentHelper to put data on document for production system. [Using the data Property](https://docs.coveo.com/en/31/cloud-v2-developers/using-the-data-property).
 * The `SetContent` method has an overload taking a Stream instead of a string. The stream must be convertible to textual data.
 * The PushDocumentHelper class also has a  `SetContentFromFile` method taking a file path as an argument. **Be careful**, this method only works with text file. For binary file (e.g. PDF) use `SetBinaryContentFromFileAndCompress`.
-* The third argument in `AddOrUpdateDocument` is the [ordering ID](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter). If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received. 
+* The third argument in `AddOrUpdateDocument` is the [ordering ID](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter). If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received.
 * The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
 
 ### Pushing a document with large properties
@@ -100,7 +100,7 @@ document.JsonObjectSize > Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES
 ```
 
 ### Pushing a document with large binary data size
-The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value you typically need to request an upload URI to an S3 Bucket. You would then put your document binary data in that bucket and refer to it by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed). 
+The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value you typically need to request an upload URI to an S3 Bucket. You would then put your document binary data in that bucket and refer to it by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed).
 
 ### Delete a single document
 ```csharp
@@ -135,7 +135,7 @@ ulong orderingId = 12345; // Every document in the source that has an ordering l
 client.DocumentManager.DeleteDocumentsOlderThan(sourceId, orderingId, null);
 ```
 **Good to know:**
-* The third argument in `DeleteDocumentsOlderThan` is the processing delay. When passing `null`, it uses the default value of 15 minutes. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source). 
+* The third argument in `DeleteDocumentsOlderThan` is the processing delay. When passing `null`, it uses the default value of 15 minutes. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source).
 
 ### Combine delete and add
 You can combine a batch of documents to be deleted and a batch of documents to be added in the same call.
@@ -162,6 +162,67 @@ IList<string> documentsToDelete = new List<string> {
 
 client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, documentsToDelete, null);
 ```
+
+## Using the SDK to push documents to the Stream API
+
+Methods to interact with the Stream API are part of the `client.DocumentManager` object. It’s a different mode of operations from the Push API, but very similar, with several more calls.
+
+### Requirements:
+
+* Before you proceed with this method, ensure you’ve understood how to [index data](https://docs.coveo.com/en/2956/coveo-for-commerce/index-commerce-catalog-content-with-the-stream-api) and [create a commerce catalog](https://docs.coveo.com/en/3139/coveo-for-commerce/create-a-coveo-commerce-catalog).
+* For additional information and payload examples, refer to [How to Stream Your Catalog Data to Your Source](https://docs.coveo.com/en/lb4a0344/coveo-for-commerce/how-to-stream-your-catalog-data-to-your-source).
+* To use the Stream API, a version of the CoveoPlatformConfig needs to be created where useStreamApi is set to true:
+`new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL, Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL, apiKey, organizationId, true)`
+
+### How the Stream API works
+
+The Stream API works in two ways:
+
+* Stream mode (a full rebuild)
+* Update mode (an incremental refresh)
+
+### Call Wrappers for the Stream API
+
+Call wrappers for the Stream API are found in the StreamApiDocumentServiceManager. You will need to create the [catalog source](https://docs.coveo.com/en/3295/index-content/add-or-edit-a-catalog-source) in the Admin UI first. Batching documents is recommended.
+
+As the class inherits from DocumentServiceManager, the only truly new public calls are:
+
+`GetNewChunkForStream(string sourceId)`
+`OpenDocumentStream(string sourceId)`
+`CloseDocumentStream(string sourceId)`
+
+Adding and deleting documents will call the base methods, but with some Stream API-specific details in the implementation.
+
+### How to Open a Stream:
+
+> :warning: When you open and close a stream all previous files not indexed in the current operation will be removed from the index. Updating individual documents should be done in **update mode**, without the need to open a stream and close it afterwards.
+
+Use `client.DocumentManager.OpenDocumentStream(sourceId)`
+
+This will save a `streamId` in the StreamApiDocumentServiceManager instance.
+
+### Add or Update Documents:
+
+The below calls use the call to `AddOrUpdateDocuments` that is in the DocumentServiceManager, whether or not the streamApiDocumentServiceManager contains a `streamId` will determine if the documents are uploaded in **stream mode** using the /chunk endpoint, or uploaded in **update mode** using the /files endpoint.
+
+For a single file use: `streamApiDocumentServiceManager.AddOrUpdateDocument(sourceId, pushDocument, orderingId)`
+OR
+For multiple files, use: `streamApiDocumentServiceManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, orderingId)`
+
+There shouldn’t be a need to manually call `GetNewChunkForStream`, as in **stream mode** each new call to `AddOrUpdateDocuments` will also call `GetNewChunkForStream`.
+In **update mode**, the call to /update is done automatically after uploading each batch.
+
+### Delete Documents:
+
+To delete a single file, use: `DeleteDocument(sourceId, documentsToDelete, orderingId)`
+OR
+To delete multiple files, use: `DeleteDocuments(sourceId, documentsToDelete, orderingId)`
+
+These calls will close an existing stream and call `AddOrUpdateDocuments` as well, followed by a call to the /update endpoint.
+
+### How to Close a Stream:
+
+Use: `client.DocumentManager.CloseDocumentStream(sourceId)`
 
 ## Adding permissions to your documents
 You can add permissions to documents, so only allowed users or groups can view the document. To learn how to format your permissions, see [Push API Tutorial 2 - Managing Secured Content](https://docs.coveo.com/en/98/cloud-v2-developers/push-api-tutorial-2---managing-secured-content).
@@ -262,7 +323,7 @@ client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new Permis
 client.PermissionManager.DeleteIdentitiesOlderThan(expandedProviderId, 300);
 ```
 **Good to know:**
-* As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source). 
+* As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source).
 
 ### Add complex permissions to a document
 The permission model of your system might be more complicated, thus, simple permissions might not be enough to secure your documents. Below is an example of a two-level permission model. One for the `Administrator` of the system and the other one for standard users. For more information, visit [Complex Permission Model Definition Example](https://docs.coveo.com/en/25/cloud-v2-developers/complex-permission-model-definition-example).
