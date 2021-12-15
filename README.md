@@ -100,7 +100,7 @@ document.JsonObjectSize > Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES
 ```
 
 ### Pushing a document with large binary data size
-The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value you typically need to request an upload URI to an S3 file container. You would then put your document's binary data in that container and refer to the container by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed).
+The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value, you typically need to request an upload URI to an S3 file container. You would then put your document's binary data in that container and refer to the container by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will perform the needed logic. Note that the maximum size of a document is 256MB (compressed).
 
 ### Delete a single document
 ```csharp
@@ -170,9 +170,9 @@ Methods to interact with the Stream API are part of the `client.DocumentManager`
 ### Prerequisites:
 
 * Before you proceed with this method, ensure you’ve understood how to [create a commerce catalog](https://docs.coveo.com/en/3139/coveo-for-commerce/create-a-coveo-commerce-catalog) and how to [index data with the Stream API](https://docs.coveo.com/en/2956/coveo-for-commerce/index-commerce-catalog-content-with-the-stream-api).
-* For additional information and payload examples, refer to [How to Stream Your Catalog Data to Your Source](https://docs.coveo.com/en/lb4a0344/coveo-for-commerce/how-to-stream-your-catalog-data-to-your-source).
+* For additional information and payload examples, see [How to Stream Your Catalog Data to Your Source](https://docs.coveo.com/en/lb4a0344/coveo-for-commerce/how-to-stream-your-catalog-data-to-your-source).
 * Create the [catalog source](https://docs.coveo.com/en/3295/index-content/add-or-edit-a-catalog-source) first in the Coveo Administration Console and get an API key to provide to the `CoveoPlatformConfig`.
-* To enable the use of the Stream API, create your `CoveoPlatformConfig` with the `useStreamApi` parameter set to true:
+* To enable the use of the Stream API, create your `CoveoPlatformConfig` with the `useStreamApi` parameter set to `true`:
 
 ```
 new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL, Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL, apiKey, organizationId, true)
@@ -185,17 +185,17 @@ The Stream API works in two ways:
 * Stream mode (a full rebuild)
 * Update mode (an incremental refresh)
 
-### Call Wrappers for the Stream API
+### Call wrappers for the Stream API
 
 Call wrappers for the Stream API are found in the `StreamApiDocumentServiceManager` class. As the class inherits from the `DocumentServiceManager` class, the only truly new public calls are:
 
 * `OpenDocumentStream(string sourceId)` to open a stream.
-* `GetNewChunkForStream(string sourceId)` to get a new stream chunk. Normally this should not need to be called, the SDK will automatically get a new chunk before each batch upload.
+* `GetNewChunkForStream(string sourceId)` to get a new stream chunk. Normally, this method won't need to be called because the SDK will automatically get a new chunk before each batch upload.
 * `CloseDocumentStream(string sourceId)` to close an open stream.
 
 Adding and deleting documents will call the base methods, but with some Stream API-specific details in the implementation.
 
-### Opening a Stream
+### Opening a stream
 
 > :warning: When you open and close a stream, all previous files not indexed in the current operation will be removed from the index. Updating individual documents should be done in **update mode**, without the need to open a stream and close it afterwards.
 
@@ -205,7 +205,7 @@ client.DocumentManager.OpenDocumentStream(sourceId)
 
 This will save a `streamId` in the `client.DocumentManager` instance.
 
-### Adding or Updating Documents
+### Adding or updating documents
 
 The below calls use the call to the `AddOrUpdateDocuments` method that is in the `DocumentServiceManager` class. The presence of a `streamId` in the `client.DocumentManager` instance will determine if the documents are uploaded in **stream mode** using the `/chunk` endpoint, or uploaded in **update mode** using the `/files` endpoint. Batching documents is strongly recommended and can be accomplished by calling `AddOrUpdateDocuments` for each batch of documents under 256 MB.
 
@@ -221,7 +221,7 @@ client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, nu
 client.DocumentManager.AddOrUpdateDocument(sourceId, pushDocument, null)
 ```
 **Good to know:**
-* The Stream API has the same limits as the Push API regarding document size and number of calls, adding several documents using `AddOrUpdateDocument` could result in a `429 - Too Many Requests` response from the Coveo platform.
+* The Stream API has the same limits as the Push API regarding document size and number of calls. Adding several documents using `AddOrUpdateDocument` could result in a `429 - Too Many Requests` response from the Coveo platform.
 * There shouldn’t be a need to manually call `GetNewChunkForStream`, as in **stream mode** each new call to `AddOrUpdateDocuments` will also call `GetNewChunkForStream` first.
 * In **update mode**, the call to the `/update` endpoint is done automatically after uploading each batch.
 
