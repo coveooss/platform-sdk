@@ -172,10 +172,17 @@ Methods to interact with the Stream API are part of the `client.DocumentManager`
 * Before you proceed with this method, ensure you’ve understood how to [create a commerce catalog](https://docs.coveo.com/en/3139/coveo-for-commerce/create-a-coveo-commerce-catalog) and how to [index data with the Stream API](https://docs.coveo.com/en/2956/coveo-for-commerce/index-commerce-catalog-content-with-the-stream-api).
 * For additional information and payload examples, see [How to Stream Your Catalog Data to Your Source](https://docs.coveo.com/en/lb4a0344/coveo-for-commerce/how-to-stream-your-catalog-data-to-your-source).
 * Create the [catalog source](https://docs.coveo.com/en/3295/index-content/add-or-edit-a-catalog-source) first in the Coveo Administration Console and get an API key to provide to the `CoveoPlatformConfig`.
-* To enable the use of the Stream API, create your `CoveoPlatformConfig` with the `useStreamApi` parameter set to `true`:
+* To enable the use of the Stream API, create your `CoveoPlatformConfig` with the `useStreamApi` parameter set to `true` and provide it to the client:
 
 ```
-new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL, Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL, apiKey, organizationId, true)
+string apiKey = "Your API key with the required privileges";
+string organizationId = "Your organization ID";
+ICoveoPlatformConfig config = new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL,
+                                                      Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL,
+                                                      apiKey,
+                                                      organizationId,
+                                                      true)
+ICoveoPlatformClient client = new CoveoPlatformClient(config);
 ```
 
 ### How the Stream API works
