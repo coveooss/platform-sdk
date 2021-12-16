@@ -17,7 +17,7 @@ The code documentation is generated and is available for most of the public memb
 ## How to use the SDK
 First, you need to instantiate the client to interact with the platform. Here is the minimum configuration you need to provide:
 
-**Each section below will redirect you to the privileges needed for the requests to work. For more information about API key privileges, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference).**
+**Each section below will redirect you to the privileges needed for the requests to work. For more information about API key privileges, see [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference).**
 
 ```csharp
 string apiKey = "Your API key with the required privileges";
@@ -43,10 +43,10 @@ Methods to interact with the Push API are part of the `client.DocumentManager` o
 ### Prerequisites
 1. Ensure your API key has the required privilege to push documents inside a Push API source.
 1. You can create an API key when creating a Push API source.
-1. You can also create an API key manually. For more information about which privileges are required, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#sources-domain).
+1. You can also create an API key manually. For more information about which privileges are required, see [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#sources-domain).
 1. [Create a Push API source.](https://docs.coveo.com/en/1546/cloud-v2-administrators/add-or-edit-a-push-source)
 ### Pushing a batch of documents
-For overall performance, it is better to push your documents in batches. Use the single document method when batches are not required to meet both your performance and volume requirements. For more information, visit [Managing Batches of Items in a Push Source](https://docs.coveo.com/en/90/cloud-v2-developers/managing-batches-of-items-in-a-push-source).
+For overall performance, it is better to push your documents in batches. Use the single document method when batches are not required to meet both your performance and volume requirements. For more information, see [Managing Batches of Items in a Push Source](https://docs.coveo.com/en/90/cloud-v2-developers/managing-batches-of-items-in-a-push-source).
 
 ```csharp
 PushDocument firstDocumentToAdd = new PushDocument("http://www.coveo.com/page1") {
@@ -87,7 +87,7 @@ client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
 * The `SetContent` and `SetContentFromFile` put the value in the `data` field of the document. This is meant for small raw textual data. **Pro tip:** You should use the other method in PushDocumentHelper to put data on document for production system. [Using the data Property](https://docs.coveo.com/en/31/cloud-v2-developers/using-the-data-property).
 * The `SetContent` method has an overload taking a Stream instead of a string. The stream must be convertible to textual data.
 * The PushDocumentHelper class also has a  `SetContentFromFile` method taking a file path as an argument. **Be careful**, this method only works with text file. For binary file (e.g. PDF) use `SetBinaryContentFromFileAndCompress`.
-* The third argument in `AddOrUpdateDocument` is the [ordering ID](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter). If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received. 
+* The third argument in `AddOrUpdateDocument` is the [ordering ID](https://docs.coveo.com/en/147/cloud-v2-developers/understanding-the-orderingid-parameter). If you don't provide a value, the SDK will create one using a timestamp to ensure the changes are performed in the order they were received.
 * The call returns the generated ordering ID if you did not specify one. You can store it. It can be useful to delete a batch of documents.
 
 ### Pushing a document with large properties
@@ -100,9 +100,9 @@ document.JsonObjectSize > Constants.COMPRESSED_DATA_MAX_SIZE_IN_BYTES
 ```
 
 ### Pushing a document with large binary data size
-The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value you typically need to request an upload URI to an S3 Bucket. You would then put your document binary data in that bucket and refer to it by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will do the needed logic. Take note that the maximum size of a document is 256MB (compressed). 
+The Push API has a hard limit of 5MB (compressed) on the document's binary data. When the size exceeds that value, you typically need to request an upload URI to an S3 file container. You would then put your document's binary data in that container and refer to the container by ID when pushing the target document with the Push API. However, lucky you, the SDK handles this automatically. Thus, the SDK compresses the content, and if it exceeds 5MB (compressed), it will perform the needed logic. Note that the maximum size of a document is 256MB (compressed).
 
-### Delete a single document
+### Deleting a single document
 ```csharp
 string documentId = "https://coveo.com";
 client.DocumentManager.DeleteDocument(sourceId, documentId, null);
@@ -110,7 +110,7 @@ client.DocumentManager.DeleteDocument(sourceId, documentId, null);
 **Good to know:**
 * Favor deleting documents in batches to save API calls and to have a better application performance.
 
-### Delete a batch of documents
+### Deleting a batch of documents
 ```csharp
 IList<string> documentsIdstoDelete = new List<string> {
     "https://coveo.com",
@@ -119,8 +119,8 @@ IList<string> documentsIdstoDelete = new List<string> {
 client.DocumentManager.DeleteDocuments(sourceId, documentsIdstoDelete, null);
 ```
 
-### Delete a specific document and its children
-You can delete a specific document and all of its children easily. For more information about deleting a document and its children, visit [Deleting an Item and Optionally, its Children in a Push Source](https://docs.coveo.com/en/171/cloud-v2-developers/deleting-an-item-and-optionally-its-children-in-a-push-source)
+### Deleting a specific document and its children
+You can delete a specific document and all of its children easily. For more information about deleting a document and its children, see [Deleting an Item and Optionally, its Children in a Push Source](https://docs.coveo.com/en/171/cloud-v2-developers/deleting-an-item-and-optionally-its-children-in-a-push-source)
 
 In this example, imagine you have added a document with an ID of `http://coveo.com/parent` and another document with an ID of `http://coveo.com/parent/child`. Clearly, it this example, the second document is the child of the former. To delete the parent and child documents:
 ```csharp
@@ -128,16 +128,16 @@ string parentDocumentId = "http://coveo.com/parent";
 client.DocumentManager.DeleteDocument(sourceId, parentDocumentId, null, true);
 ```
 
-### Delete documents older than a specific ordering ID
+### Deleting documents older than a specific ordering ID
 Remember the ordering ID? You can send a request to your Push API source to delete all documents that were pushed with an ordering ID less than the one you provide.
 ```csharp
 ulong orderingId = 12345; // Every document in the source that has an ordering lower than 12345 will be deleted.
 client.DocumentManager.DeleteDocumentsOlderThan(sourceId, orderingId, null);
 ```
 **Good to know:**
-* The third argument in `DeleteDocumentsOlderThan` is the processing delay. When passing `null`, it uses the default value of 15 minutes. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source). 
+* The third argument in `DeleteDocumentsOlderThan` is the processing delay. When passing `null`, it uses the default value of 15 minutes. For more information about processing delay, see [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source).
 
-### Combine delete and add
+### Combining delete and add
 You can combine a batch of documents to be deleted and a batch of documents to be added in the same call.
 ```csharp
 PushDocument firstDocumentToAdd = new PushDocument("http://www.coveo.com/page/child") {
@@ -163,12 +163,104 @@ IList<string> documentsToDelete = new List<string> {
 client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, documentsToDelete, null);
 ```
 
+## Using the SDK to push documents to the Stream API
+
+Methods to interact with the Stream API are part of the `client.DocumentManager` object. It’s a different mode of operation from the Push API, but very similar, with several more calls.
+
+### Prerequisites:
+
+* Before you proceed with this method, ensure you’ve understood how to [create a commerce catalog](https://docs.coveo.com/en/3139/coveo-for-commerce/create-a-coveo-commerce-catalog) and how to [index data with the Stream API](https://docs.coveo.com/en/2956/coveo-for-commerce/index-commerce-catalog-content-with-the-stream-api).
+* For additional information and payload examples, see [How to Stream Your Catalog Data to Your Source](https://docs.coveo.com/en/lb4a0344/coveo-for-commerce/how-to-stream-your-catalog-data-to-your-source).
+* Create the [catalog source](https://docs.coveo.com/en/3295/index-content/add-or-edit-a-catalog-source) first in the Coveo Administration Console and get an API key to provide to the `CoveoPlatformConfig`.
+* To enable the use of the Stream API, create your `CoveoPlatformConfig` with the `useStreamApi` parameter set to `true` and provide it to the client:
+
+```
+string apiKey = "Your API key with the required privileges";
+string organizationId = "Your organization ID";
+ICoveoPlatformConfig config = new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL,
+                                                      Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL,
+                                                      apiKey,
+                                                      organizationId,
+                                                      true)
+ICoveoPlatformClient client = new CoveoPlatformClient(config);
+```
+
+### How the Stream API works
+
+The Stream API works in two ways:
+
+* Stream mode (a full rebuild)
+* Update mode (an incremental refresh)
+
+### Call wrappers for the Stream API
+
+Call wrappers for the Stream API are found in the `StreamApiDocumentServiceManager` class. As the class inherits from the `DocumentServiceManager` class, the only truly new public calls are:
+
+* `OpenDocumentStream(string sourceId)` to open a stream.
+* `GetNewChunkForStream(string sourceId)` to get a new stream chunk. Normally, this method won't need to be called because the SDK will automatically get a new chunk before each batch upload.
+* `CloseDocumentStream(string sourceId)` to close an open stream.
+
+Adding and deleting documents will call the base methods, but with some Stream API-specific details in the implementation.
+
+### Opening a stream
+
+> :warning: When you open and close a stream, all files that aren't indexed in the current operation will be removed from the index. Updating individual documents should be done in **update mode**, without the need to open a stream and close it afterwards.
+
+```
+client.DocumentManager.OpenDocumentStream(sourceId)
+```
+
+This will save a `streamId` in the `client.DocumentManager` instance.
+
+### Adding or updating documents
+
+The following calls use the `AddOrUpdateDocuments` method that's in the `DocumentServiceManager` class. The presence of a `streamId` in the `client.DocumentManager` instance will determine if the documents are uploaded in **stream mode** using the `/chunk` endpoint, or uploaded in **update mode** using the `/files` endpoint. Batching documents is strongly recommended and can be accomplished by calling `AddOrUpdateDocuments` for each batch of documents under 256 MB.
+
+**Adding a batch of documents**
+
+Create Push Documents from your catalog items and put them into a `List<PushDocument>`, similar to what is done when pushing a batch of documents with the Push API.
+```
+client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, null)
+```
+
+**Adding a single document**
+```
+client.DocumentManager.AddOrUpdateDocument(sourceId, pushDocument, null)
+```
+**Good to know:**
+* The Stream API has the same limits as the Push API regarding document size and number of calls. Adding several documents using `AddOrUpdateDocument` could result in a `429 - Too Many Requests` response from the Coveo platform.
+* There shouldn’t be a need to manually call `GetNewChunkForStream`, as in **stream mode** each new call to `AddOrUpdateDocuments` will also call `GetNewChunkForStream` first.
+* In **update mode**, the call to the `/update` endpoint is done automatically after uploading each batch.
+
+### Deleting multiple documents
+```
+IList<string> documentsIdstoDelete = new List<string> {
+    "https://coveo.com",
+    "https://coveo.com/a page"
+};
+client.DocumentManager.DeleteDocuments(sourceId, documentsIdstoDelete, null)
+```
+### Deleting a single document
+```
+string documentId = "https://coveo.com";
+client.DocumentManager.DeleteDocument(sourceId, documentId, null)
+```
+**Good to know:**
+* Both of these calls actually call the `AddOrUpdateDocuments` method (if there is only one document, it will be put into a list first) and will use the **update mode**.
+* If a stream is already open, it will be closed before `AddOrUpdateDocuments` is called.
+* Each of these calls will be followed by a call to the `/update` endpoint.
+
+### Closing a Stream
+```
+client.DocumentManager.CloseDocumentStream(sourceId)
+```
+
 ## Adding permissions to your documents
 You can add permissions to documents, so only allowed users or groups can view the document. To learn how to format your permissions, see [Push API Tutorial 2 - Managing Secured Content](https://docs.coveo.com/en/98/cloud-v2-developers/push-api-tutorial-2---managing-secured-content).
 
 ### Prerequisites
 1. Ensure your [Push source is secured](https://docs.coveo.com/en/98/#step-1-configure-a-secured-push-source)
-1. Ensure your API key has the privileges required to create a security identity provider. For more information about which privileges are required, visit [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#security-identities-domain).
+1. Ensure your API key has the privileges required to create a security identity provider. For more information about which privileges are required, see [Privilege Reference](https://docs.coveo.com/en/1707/cloud-v2-administrators/privilege-reference#security-identities-domain).
 1. Create an `Expanded` security provider that cascades to `Email Security Provider` and link it to your source. Here is an example using the SDK:
 ```csharp
 string expandedProviderId = "The unique name you want";
@@ -177,8 +269,8 @@ client.SecurityProviderManager.AddOrUpdateExpandedProviderAssociatedToEmailProvi
 **Good to know:**
 * The third argument of `AddOrUpdateExpandedProviderAssociatedToEmailProvider` determines whether the provider is case-sensitive or not. If false, `acme\jdoe` is the same as `acme\JDOE`.
 
-### Add simple permissions to the document
-In this example, we add a document with a simple permission model. I.e., we set the allowed and denied users directly on the document. For more information, visit [Simple Permission Model Definition Examples](https://docs.coveo.com/en/107/cloud-v2-developers/simple-permission-model-definition-examples)
+### Adding simple permissions to the document
+In this example, we add a document with a simple permission model. I.e., we set the allowed and denied users directly on the document. For more information, see [Simple Permission Model Definition Examples](https://docs.coveo.com/en/107/cloud-v2-developers/simple-permission-model-definition-examples)
 ```csharp
 PushDocument document = new PushDocument("http://www.coveo.com/secured") {
     ClickableUri = "http://www.coveo.com/secured",
@@ -206,7 +298,7 @@ client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, null, userBody)
 client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, null, groupBody);
 ```
 
-### Push a batch of identities
+### Pushing a batch of identities
 For overall performance, it is better to push your identities in batches.
 ```csharp
 PermissionIdentity member1 = new PermissionIdentity(@"acme\member1", PermissionIdentityType.User);
@@ -236,13 +328,13 @@ List<PermissionIdentityBody> membersToAddOrUpdate = new List<PermissionIdentityB
 client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mappingsMembersToAddOrUpdate.Concat(membersToAddOrUpdate).ToList());
 ```
 
-### Disable a single security identity
-You can easily disable an identity. For more information, visit [Disabling a Single Security Identity](https://docs.coveo.com/en/84/cloud-v2-developers/disabling-a-single-security-identity).
+### Disabling a single security identity
+You can easily disable an identity. For more information, see [Disabling a Single Security Identity](https://docs.coveo.com/en/84/cloud-v2-developers/disabling-a-single-security-identity).
 ```csharp
 client.PermissionManager.DeleteIdentity(expandedProviderId, new PermissionIdentity(@"acme\johndoe", PermissionIdentityType.User));
 ```
 
-### Disable a batch of identities
+### Disabling a batch of identities
 ```csharp
 IList<PermissionIdentity> identitiesToDelete = new List<PermissionIdentity> {
     new PermissionIdentity(@"acme\member1", PermissionIdentityType.User),
@@ -252,8 +344,8 @@ IList<PermissionIdentity> identitiesToDelete = new List<PermissionIdentity> {
 client.PermissionManager.DeleteIdentities(expandedProviderId, null, identitiesToDelete);
 ```
 
-### Disable identities older than a specific ordering ID
-Same as with documents, you can disable identities that have an ordering ID smaller than the one you provide. For more information, visit [Disabling Old Security Identities](https://docs.coveo.com/en/33/cloud-v2-developers/disabling-old-security-identities).
+### Disabling identities older than a specific ordering ID
+Same as with documents, you can disable identities that have an ordering ID smaller than the one you provide. For more information, see [Disabling Old Security Identities](https://docs.coveo.com/en/33/cloud-v2-developers/disabling-old-security-identities).
 ```csharp
 client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 100, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted3", PermissionIdentityType.User)));
 client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted4", PermissionIdentityType.User)));
@@ -262,10 +354,10 @@ client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new Permis
 client.PermissionManager.DeleteIdentitiesOlderThan(expandedProviderId, 300);
 ```
 **Good to know:**
-* As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call. For more information about processing delay, visit [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source). 
+* As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call. For more information about processing delay, see [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source).
 
-### Add complex permissions to a document
-The permission model of your system might be more complicated, thus, simple permissions might not be enough to secure your documents. Below is an example of a two-level permission model. One for the `Administrator` of the system and the other one for standard users. For more information, visit [Complex Permission Model Definition Example](https://docs.coveo.com/en/25/cloud-v2-developers/complex-permission-model-definition-example).
+### Adding complex permissions to a document
+The permission model of your system might be more complicated, thus, simple permissions might not be enough to secure your documents. Below is an example of a two-level permission model. One for the `Administrator` of the system and the other one for standard users. For more information, see [Complex Permission Model Definition Example](https://docs.coveo.com/en/25/cloud-v2-developers/complex-permission-model-definition-example).
 ```csharp
 PushDocument verySecureDocument = new PushDocument("http://www.coveo.com/verysecure") {
     ClickableUri = "http://www.coveo.com/verysecure",
@@ -326,7 +418,7 @@ List<PermissionIdentityBody> mappingsMembersToAddOrUpdate = new List<PermissionI
 client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mappingsMembersToAddOrUpdate);
 ```
 
-## Activate logging
+## Activating logging
 The SDK uses `log4net` as its logging library. It can be useful to have logs in case of problems. In your log4net configuration, add a logger with named `Coveo`. We use namespaces as logger names. Using `Coveo` as the logger name will get you all the logs from the SDK.
 
 **Good to know:**
