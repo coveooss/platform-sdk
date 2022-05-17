@@ -181,8 +181,12 @@ ICoveoPlatformConfig config = new CoveoPlatformConfig(Constants.Endpoint.UsEast1
                                                       Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL,
                                                       apiKey,
                                                       organizationId,
-                                                      true)
+                                                      true);
 ICoveoPlatformClient client = new CoveoPlatformClient(config);
+```
+You can now extract the `StreamApiDocumentServiceManager` with an explicit cast in order to use it with all the calls to the Stream API:
+```
+var streamManager = client.DocumentManager as StreamApiDocumentServiceManager;
 ```
 
 ### How the Stream API works
@@ -207,25 +211,25 @@ Adding and deleting documents will call the base methods, but with some Stream A
 > :warning: When you open and close a stream, all files that aren't indexed in the current operation will be removed from the index. Updating individual documents should be done in **update mode**, without the need to open a stream and close it afterwards.
 
 ```
-client.DocumentManager.OpenDocumentStream(sourceId)
+streamManager.OpenDocumentStream(sourceId);
 ```
 
-This will save a `streamId` in the `client.DocumentManager` instance.
+This will save a `streamId` in the `StreamApiDocumentServiceManager` instance.
 
 ### Adding or updating documents
 
-The following calls use the `AddOrUpdateDocuments` method that's in the `DocumentServiceManager` class. The presence of a `streamId` in the `client.DocumentManager` instance will determine if the documents are uploaded in **stream mode** using the `/chunk` endpoint, or uploaded in **update mode** using the `/files` endpoint. Batching documents is strongly recommended and can be accomplished by calling `AddOrUpdateDocuments` for each batch of documents under 256 MB.
+The following calls use the `AddOrUpdateDocuments` method that's in the `DocumentServiceManager` class. The presence of a `streamId` in the `StreamApiDocumentServiceManager` instance will determine if the documents are uploaded in **stream mode** using the `/chunk` endpoint, or uploaded in **update mode** using the `/files` endpoint. Batching documents is strongly recommended and can be accomplished by calling `AddOrUpdateDocuments` for each batch of documents under 256 MB.
 
 **Adding a batch of documents**
 
 Create Push Documents from your catalog items and put them into a `List<PushDocument>`, similar to what is done when pushing a batch of documents with the Push API.
 ```
-client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, null)
+streamManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, null);
 ```
 
 **Adding a single document**
 ```
-client.DocumentManager.AddOrUpdateDocument(sourceId, pushDocument, null)
+streamManager.AddOrUpdateDocument(sourceId, pushDocument, null);
 ```
 **Good to know:**
 * The Stream API has the same limits as the Push API regarding document size and number of calls. Adding several documents using `AddOrUpdateDocument` could result in a `429 - Too Many Requests` response from the Coveo platform.
@@ -238,12 +242,12 @@ IList<string> documentsIdstoDelete = new List<string> {
     "https://coveo.com",
     "https://coveo.com/a page"
 };
-client.DocumentManager.DeleteDocuments(sourceId, documentsIdstoDelete, null)
+streamManager.DeleteDocuments(sourceId, documentsIdsToDelete, null);
 ```
 ### Deleting a single document
 ```
 string documentId = "https://coveo.com";
-client.DocumentManager.DeleteDocument(sourceId, documentId, null)
+streamManager.DeleteDocument(sourceId, documentId, null);
 ```
 **Good to know:**
 * Both of these calls actually call the `AddOrUpdateDocuments` method (if there is only one document, it will be put into a list first) and will use the **update mode**.
@@ -252,7 +256,7 @@ client.DocumentManager.DeleteDocument(sourceId, documentId, null)
 
 ### Closing a Stream
 ```
-client.DocumentManager.CloseDocumentStream(sourceId)
+streamManager.CloseDocumentStream(sourceId);
 ```
 
 ## Adding permissions to your documents
