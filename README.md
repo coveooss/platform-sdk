@@ -186,7 +186,7 @@ ICoveoPlatformClient client = new CoveoPlatformClient(config);
 ```
 You can now extract the `StreamApiDocumentServiceManager` with an explicit cast in order to use it with all the calls to the Stream API:
 ```
-var streamManager = client.DocumentManager as StreamApiDocumentServiceManager;
+var streamManager = (StreamApiDocumentServiceManager) client.DocumentManager;
 ```
 
 ### How the Stream API works
