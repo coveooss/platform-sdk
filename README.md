@@ -22,8 +22,9 @@ First, you need to instantiate the client to interact with the platform. Here is
 ```csharp
 string apiKey = "Your API key with the required privileges";
 string organizationId = "Your organization ID";
+CancellationToken cancellationToken = new CancellationToken();
 ICoveoPlatformConfig config = new CoveoPlatformConfig(apiKey, organizationId);
-ICoveoPlatformClient client = new CoveoPlatformClient(config);
+ICoveoPlatformClient client = new CoveoPlatformClient(config, cancellationToken);
 ```
 
 By default, the package targets the US production environment (platform.cloud.coveo.com). If you want to target the US HIPAA environment (platformhipaa.cloud.coveo.com) you can do it this way:
@@ -31,11 +32,12 @@ By default, the package targets the US production environment (platform.cloud.co
 ```csharp
 string apiKey = "Your API key with the required privileges";
 string organizationId = "Your organization ID";
+CancellationToken cancellationToken = new CancellationToken();
 ICoveoPlatformConfig config = new CoveoPlatformConfig(Constants.Endpoint.UsEast1.HIPAA_PUSH_API_URL,
     Constants.PlatformEndpoint.UsEast1.HIPAA_PLATFORM_API_URL,
     apiKey,
     organizationId);
-ICoveoPlatformClient client = new CoveoPlatformClient(config);
+ICoveoPlatformClient client = new CoveoPlatformClient(config, cancellationToken);
 ```
 
 ## Using the SDK to push documents to a Push source
@@ -64,7 +66,7 @@ IList<PushDocument> documentsToAdd = new List<PushDocument> {
     secondDocumentToAdd
 };
 
-client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, null);
+client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, null, cancellationToken);
 ```
 ### Pushing a single document
 You should only use this method when you want to add or update a single document. Pushing several documents using this method may lead to the `429 - Too Many Requests` response from the Coveo platform and decrease the overall performance of your application.
@@ -80,7 +82,7 @@ document.AddMetadata("title", "Coveo's home page.");
 
 PushDocumentHelper.SetContent(document, "this is Coveo's website home page.");
 
-client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
+client.DocumentManager.AddOrUpdateDocument(sourceId, document, null, cancellationToken);
 ```
 
 **Good to know:**
@@ -105,7 +107,7 @@ The Push API has a hard limit of 5MB (compressed) on the document's binary data.
 ### Deleting a single document
 ```csharp
 string documentId = "https://coveo.com";
-client.DocumentManager.DeleteDocument(sourceId, documentId, null);
+client.DocumentManager.DeleteDocument(sourceId, documentId, null, cancellationToken);
 ```
 **Good to know:**
 * Favor deleting documents in batches to save API calls and to have a better application performance.
@@ -116,7 +118,7 @@ IList<string> documentsIdstoDelete = new List<string> {
     "https://coveo.com",
     "https://coveo.com/a page"
 };
-client.DocumentManager.DeleteDocuments(sourceId, documentsIdstoDelete, null);
+client.DocumentManager.DeleteDocuments(sourceId, documentsIdstoDelete, null, cancellationToken);
 ```
 
 ### Deleting a specific document and its children
@@ -125,14 +127,14 @@ You can delete a specific document and all of its children easily. For more info
 In this example, imagine you have added a document with an ID of `http://coveo.com/parent` and another document with an ID of `http://coveo.com/parent/child`. Clearly, it this example, the second document is the child of the former. To delete the parent and child documents:
 ```csharp
 string parentDocumentId = "http://coveo.com/parent";
-client.DocumentManager.DeleteDocument(sourceId, parentDocumentId, null, true);
+client.DocumentManager.DeleteDocument(sourceId, parentDocumentId, null, true, cancellationToken);
 ```
 
 ### Deleting documents older than a specific ordering ID
 Remember the ordering ID? You can send a request to your Push API source to delete all documents that were pushed with an ordering ID less than the one you provide.
 ```csharp
 ulong orderingId = 12345; // Every document in the source that has an ordering lower than 12345 will be deleted.
-client.DocumentManager.DeleteDocumentsOlderThan(sourceId, orderingId, null);
+client.DocumentManager.DeleteDocumentsOlderThan(sourceId, orderingId, null, cancellationToken);
 ```
 **Good to know:**
 * The third argument in `DeleteDocumentsOlderThan` is the processing delay. When passing `null`, it uses the default value of 15 minutes. For more information about processing delay, see [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source).
@@ -160,7 +162,7 @@ IList<string> documentsToDelete = new List<string> {
     "http://coveo.com/parent"
 };
 
-client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, documentsToDelete, null);
+client.DocumentManager.AddOrUpdateDocuments(sourceId, documentsToAdd, documentsToDelete, null, cancellationToken);
 ```
 
 ## Using the SDK to push documents to the Stream API
@@ -174,18 +176,19 @@ Methods to interact with the Stream API are part of the `client.DocumentManager`
 * Create the [catalog source](https://docs.coveo.com/en/3295/index-content/add-or-edit-a-catalog-source) first in the Coveo Administration Console and get an API key to provide to the `CoveoPlatformConfig`.
 * To enable the use of the Stream API, create your `CoveoPlatformConfig` with the `useStreamApi` parameter set to `true` and provide it to the client:
 
-```
+```csharp
 string apiKey = "Your API key with the required privileges";
 string organizationId = "Your organization ID";
+CancellationToken cancellationToken = new CancellationToken();
 ICoveoPlatformConfig config = new CoveoPlatformConfig(Constants.Endpoint.UsEast1.PROD_PUSH_API_URL,
                                                       Constants.PlatformEndpoint.UsEast1.PROD_PLATFORM_API_URL,
                                                       apiKey,
                                                       organizationId,
                                                       true);
-ICoveoPlatformClient client = new CoveoPlatformClient(config);
+ICoveoPlatformClient client = new CoveoPlatformClient(config, cancellationToken);
 ```
 You can now extract the `StreamApiDocumentServiceManager` with an explicit cast in order to use it with all the calls to the Stream API:
-```
+```csharp
 var streamManager = (StreamApiDocumentServiceManager) client.DocumentManager;
 ```
 
@@ -210,8 +213,8 @@ Adding and deleting documents will call the base methods, but with some Stream A
 
 > :warning: When you open and close a stream, all files that aren't indexed in the current operation will be removed from the index. Updating individual documents should be done in **update mode**, without the need to open a stream and close it afterwards.
 
-```
-streamManager.OpenDocumentStream(sourceId);
+```csharp
+streamManager.OpenDocumentStream(sourceId, cancellationToken);
 ```
 
 This will save a `streamId` in the `StreamApiDocumentServiceManager` instance.
@@ -223,13 +226,13 @@ The following calls use the `AddOrUpdateDocuments` method that's in the `Documen
 **Adding a batch of documents**
 
 Create Push Documents from your catalog items and put them into a `List<PushDocument>`, similar to what is done when pushing a batch of documents with the Push API.
-```
-streamManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, null);
+```csharp
+streamManager.AddOrUpdateDocuments(sourceId, documentsToAddOrUpdate, null, cancellationToken);
 ```
 
 **Adding a single document**
-```
-streamManager.AddOrUpdateDocument(sourceId, pushDocument, null);
+```csharp
+streamManager.AddOrUpdateDocument(sourceId, pushDocument, null, cancellationToken);
 ```
 **Good to know:**
 * The Stream API has the same limits as the Push API regarding document size and number of calls. Adding several documents using `AddOrUpdateDocument` could result in a `429 - Too Many Requests` response from the Coveo platform.
@@ -237,17 +240,17 @@ streamManager.AddOrUpdateDocument(sourceId, pushDocument, null);
 * In **update mode**, the call to the `/update` endpoint is done automatically after uploading each batch.
 
 ### Deleting multiple documents
-```
+```csharp
 IList<string> documentsIdstoDelete = new List<string> {
     "https://coveo.com",
     "https://coveo.com/a page"
 };
-streamManager.DeleteDocuments(sourceId, documentsIdsToDelete, null);
+streamManager.DeleteDocuments(sourceId, documentsIdsToDelete, null, cancellationToken);
 ```
 ### Deleting a single document
-```
+```csharp
 string documentId = "https://coveo.com";
-streamManager.DeleteDocument(sourceId, documentId, null);
+streamManager.DeleteDocument(sourceId, documentId, null, cancellationToken);
 ```
 **Good to know:**
 * Both of these calls actually call the `AddOrUpdateDocuments` method (if there is only one document, it will be put into a list first) and will use the **update mode**.
@@ -255,8 +258,8 @@ streamManager.DeleteDocument(sourceId, documentId, null);
 * Each of these calls will be followed by a call to the `/update` endpoint.
 
 ### Closing a Stream
-```
-streamManager.CloseDocumentStream(sourceId);
+```csharp
+streamManager.CloseDocumentStream(sourceId, cancellationToken);
 ```
 
 ## Adding permissions to your documents
@@ -268,7 +271,7 @@ You can add permissions to documents, so only allowed users or groups can view t
 1. Create an `Expanded` security provider that cascades to `Email Security Provider` and link it to your source. Here is an example using the SDK:
 ```csharp
 string expandedProviderId = "The unique name you want";
-client.SecurityProviderManager.AddOrUpdateExpandedProviderAssociatedToEmailProvider(expandedProviderId, new List<string> { sourceId }, false);
+client.SecurityProviderManager.AddOrUpdateExpandedProviderAssociatedToEmailProvider(expandedProviderId, new List<string> { sourceId }, false, cancellationToken);
 ```
 **Good to know:**
 * The third argument of `AddOrUpdateExpandedProviderAssociatedToEmailProvider` determines whether the provider is case-sensitive or not. If false, `acme\jdoe` is the same as `acme\JDOE`.
@@ -287,7 +290,7 @@ PermissionIdentity group = new PermissionIdentity(@"acme\team", PermissionIdenti
 
 document.SetSimpleAllowedAndDeniedPermissions(new List<PermissionIdentity>{ user, group }, new List<PermissionIdentity>());
 
-client.DocumentManager.AddOrUpdateDocument(sourceId, document, null);
+client.DocumentManager.AddOrUpdateDocument(sourceId, document, null, cancellationToken);
 
 // Push the permission mapping for a user from Active Directory to email.
 PermissionIdentityBody userBody = new PermissionIdentityBody(user);
@@ -298,8 +301,8 @@ PermissionIdentityBody groupBody = new PermissionIdentityBody(group);
 groupBody.Mappings.Add(new PermissionIdentity("teammember1@team.acme.com", PermissionIdentityType.User));
 groupBody.Mappings.Add(new PermissionIdentity("teammember2@team.acme.com", PermissionIdentityType.User));
 
-client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, null, userBody);
-client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, null, groupBody);
+client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, null, userBody, cancellationToken);
+client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, null, groupBody, cancellationToken);
 ```
 
 ### Pushing a batch of identities
@@ -329,13 +332,13 @@ List<PermissionIdentityBody> membersToAddOrUpdate = new List<PermissionIdentityB
 };
 
 // Push user mappings and group members in one batched operation.
-client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mappingsMembersToAddOrUpdate.Concat(membersToAddOrUpdate).ToList());
+client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mappingsMembersToAddOrUpdate.Concat(membersToAddOrUpdate).ToList(), cancellationToken);
 ```
 
 ### Disabling a single security identity
 You can easily disable an identity. For more information, see [Disabling a Single Security Identity](https://docs.coveo.com/en/84/cloud-v2-developers/disabling-a-single-security-identity).
 ```csharp
-client.PermissionManager.DeleteIdentity(expandedProviderId, new PermissionIdentity(@"acme\johndoe", PermissionIdentityType.User));
+client.PermissionManager.DeleteIdentity(expandedProviderId, new PermissionIdentity(@"acme\johndoe", PermissionIdentityType.User), cancellationToken);
 ```
 
 ### Disabling a batch of identities
@@ -345,17 +348,17 @@ IList<PermissionIdentity> identitiesToDelete = new List<PermissionIdentity> {
     new PermissionIdentity(@"acme\member2", PermissionIdentityType.User)
 };
 
-client.PermissionManager.DeleteIdentities(expandedProviderId, null, identitiesToDelete);
+client.PermissionManager.DeleteIdentities(expandedProviderId, null, identitiesToDelete, cancellationToken);
 ```
 
 ### Disabling identities older than a specific ordering ID
 Same as with documents, you can disable identities that have an ordering ID smaller than the one you provide. For more information, see [Disabling Old Security Identities](https://docs.coveo.com/en/33/cloud-v2-developers/disabling-old-security-identities).
 ```csharp
-client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 100, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted3", PermissionIdentityType.User)));
-client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted4", PermissionIdentityType.User)));
+client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 100, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted3", PermissionIdentityType.User)), cancellationToken);
+client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted4", PermissionIdentityType.User)), cancellationToken);
 
 // Wait a little bit, then disable all identities with an ordering ID less than 300.
-client.PermissionManager.DeleteIdentitiesOlderThan(expandedProviderId, 300);
+client.PermissionManager.DeleteIdentitiesOlderThan(expandedProviderId, 300, cancellationToken);
 ```
 **Good to know:**
 * As for `DeleteDocumentsOlderThan`, there is a processing delay. However, it is not configurable for this call. For more information about processing delay, see [QueueDelay](https://docs.coveo.com/en/131/cloud-v2-developers/deleting-old-items-in-a-push-source).
@@ -394,7 +397,7 @@ DocumentPermissionLevel userLevel = new DocumentPermissionLevel {
 verySecureDocument.Permissions.Add(adminLevel);
 verySecureDocument.Permissions.Add(userLevel);
 
-client.DocumentManager.AddOrUpdateDocument(sourceId, verySecureDocument, null);
+client.DocumentManager.AddOrUpdateDocument(sourceId, verySecureDocument, null, cancellationToken);
 ```
 
 Then, you can push your identities as you did before.
@@ -419,7 +422,7 @@ List<PermissionIdentityBody> mappingsMembersToAddOrUpdate = new List<PermissionI
 };
 
 // Push user mappings and group members in one batch operation.
-client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mappingsMembersToAddOrUpdate);
+client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mappingsMembersToAddOrUpdate, cancellationToken);
 ```
 
 ## Activating logging
