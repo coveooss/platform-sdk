@@ -5,6 +5,16 @@ The official Coveo C# SDK allows your software to communicate with the Coveo Clo
 
 The code of the SDK is not open-source. This repository is meant to handle feedback, bug reporting, etc.
 
+## ⚠️ Deprecation notice
+
+Effective December 1, 2025, the .NET (C#) Platform SDK is reaching end of support. It will no longer receive updates, bug fixes, new features, or technical support after this date.
+
+**For existing implementations:** Your current SDK integrations will continue to work without immediate interruption. The previously published versions of SDK remain accessible.
+
+**Alternative Solution:** 
+- Use direct REST API integration with the [Coveo Platform Swagger specification](https://platform.cloud.coveo.com/docs?urls.primaryName=PushAPI).
+- Follow the [Push API documentation](https://docs.coveo.com/en/68/index-content/use-the-push-api) for implementation guidance.
+
 ## Installation
 Install the public NuGet package [Coveo.Connectors.Utilities.PlatformSdk](https://www.nuget.org/packages/Coveo.Connectors.Utilities.PlatformSdk/) in your C# project using your favorite IDE or NuGet command line.
 
