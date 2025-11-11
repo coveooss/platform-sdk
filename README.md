@@ -7,7 +7,7 @@ The code of the SDK is not open-source. This repository is meant to handle feedb
 
 ## ⚠️ Deprecation notice
 
-Effective May, 2026, the .NET (C#) Platform SDK is reaching end of support. It will no longer receive updates, bug fixes, new features, or technical support after this date.
+Effective May 2026, the .NET (C#) Platform SDK is reaching end of support. It will no longer receive updates, bug fixes, new features, or technical support after this date.
 
 **For existing implementations:** Your current SDK integrations will continue to work without immediate interruption. The previously published versions of SDK remain accessible.
 
