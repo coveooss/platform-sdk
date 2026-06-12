@@ -360,7 +360,7 @@ client.PermissionManager.DeleteIdentities(expandedProviderId, null, identitiesTo
 ```
 
 ### Disabling identities older than a specific ordering ID
-Same as with documents, you can disable identities that have an ordering ID smaller than the one you provide. For more information, see [Disabling old security identities](https://docs.coveo.com/en/33/index-content/disable-old-security-identities).
+Same as with documents, you can disable identities that have an ordering ID smaller than the one you provide. For more information, see [Disable old security identities](https://docs.coveo.com/en/33/index-content/disable-old-security-identities).
 ```csharp
 client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 100, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted3", PermissionIdentityType.User)), cancellationToken);
 client.PermissionManager.AddOrUpdateIdentity(expandedProviderId, 200, new PermissionIdentityBody(new PermissionIdentity(@"acme\tobedeleted4", PermissionIdentityType.User)), cancellationToken);
