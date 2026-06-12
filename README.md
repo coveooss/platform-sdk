@@ -344,7 +344,7 @@ client.PermissionManager.AddOrUpdateIdentities(expandedProviderId, null, mapping
 ```
 
 ### Disabling a single security identity
-You can easily disable an identity. For more information, see [Disabling a single security identity](https://docs.coveo.com/en/84/index-content/disable-a-single-security-identity).
+You can easily disable an identity. For more information, see [Disable a single security identity](https://docs.coveo.com/en/84/index-content/disable-a-single-security-identity).
 ```csharp
 client.PermissionManager.DeleteIdentity(expandedProviderId, new PermissionIdentity(@"acme\johndoe", PermissionIdentityType.User), cancellationToken);
 ```
